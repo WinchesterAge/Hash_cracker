@@ -24,6 +24,8 @@ class cracker():
         s = requests.get(f"http://localhost:8000/hash_checker/{self.hash}/{self.hash_type}")
         
         resault = s.json()
+        if resault["error"] == True:
+            return "your hash in not exists in DB!!!!"
         return resault["word"]
         
 if __name__ == "__main__":
