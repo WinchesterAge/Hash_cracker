@@ -11,11 +11,14 @@ from rest_framework import status
 def hash_serializer_view(request):
 
     if request.method == 'POST':
-        serializer = hash_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        hashes = save_data.objects.filter(word=request.data["word"]).first()
+        if hashes == None:
+            serializer = hash_serializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     elif request.method == "GET":
         hashes = save_data.objects.all()
         serializer = hash_serializer(hashes, many=True)
@@ -34,9 +37,9 @@ def hash_checker(request, Hash, hash_type):
         "error": False
     }
    
-    if Object is None:
+    if Object.first() is None:
         context["error"] = True
     elif Object.first() != None:
         context["word"] = Object.first().word
   
-    return JsonResponse({"word":context["word"]})
+    return JsonResponse({"word":context["word"] , "error":context["error"]})
